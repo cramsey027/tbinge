@@ -27,7 +27,7 @@ let tmbdCall = (options, callback) => {
             callback("Unable to connect to TMDb!")
         // Return error message for status code 401 and 404 from returned JSON
         } else if (response.statusCode === 401 || response.statusCode === 404) {
-            callback(JSON.parse(body).status_message);
+            callback(body.status_message);
         // Return object of 'body' if no error in transaction
         } else {
             callback(undefined, JSON.parse(body));
@@ -55,9 +55,20 @@ let getDetailedSearchURL = (isTV = isRequired()) => {
     };
 };
 
+// Function that returns the correct string to concatenate with the base URL depending 
+// on whether the user is posting a rating for a TV show or a movie
+let getRatingURL = (id = isRequired(), isTV = isRequired()) => {
+    if (isTV) {
+        return `${baseURL}tv/${id}/rating`;
+    } else {
+        return `${baseURL}movie/${id}/rating`;
+    };
+};
+
 // Export functions for use outside of module
 module.exports = {
     tmbdCall,
     getSearchURL,
-    getDetailedSearchURL
+    getDetailedSearchURL,
+    getRatingURL
 };
