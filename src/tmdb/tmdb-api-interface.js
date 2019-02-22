@@ -9,7 +9,7 @@ const fs = require('fs');
 const request = require("request");
 
 // Declare and initialize TMDb API variables
-const api_key = JSON.parse(fs.readFileSync(__dirname + '/key.json')).api_key;
+const authentication = JSON.parse(fs.readFileSync(__dirname + '/authentication.json'));
 const baseURL = 'https://api.themoviedb.org/3/';
 
 // Declare and initialize new error to throw if required parameter is not input
@@ -18,7 +18,12 @@ const isRequired = () => { throw new Error('Parameter is required!')}
 // Function that calls TMDb API with the input options
 let tmbdCall = (options, callback) => {
     // Adds the API key to 'options' prior to calling API
-    options.qs.api_key = api_key;
+    options.qs.api_key = authentication.api_key;
+
+    // Adds the guest session id to 'options' if conducting a POST request
+    if (options.method === "POST") {
+        options.qs.guest_session_id = authentication.guest_session_id;
+    };
 
     // Send request and return the 'body' of response or error message if unsuccessful
     request(options, (error, response, body) => {
@@ -28,11 +33,37 @@ let tmbdCall = (options, callback) => {
         // Return error message for status code 401 and 404 from returned JSON
         } else if (response.statusCode === 401 || response.statusCode === 404) {
             callback(body.status_message);
-        // Return object of 'body' if no error in transaction
+        // Return object of 'body' or 'response' if no error in transaction
         } else {  
-            callback(undefined, JSON.parse(body));
+            // Return 'body' if API call is a GET request
+            if (options.method === "GET") {
+                callback(undefined, JSON.parse(body));
+            // Return 'response' body if API call is a POST request
+            } else if (options.method === "POST") {
+                callback(undefined, response.body);
+            }
         };
     });
+};
+
+// Creates a guest session with TMDb
+let createGuestSession = (callback) => {
+    // Define options prior to passing it to the tmdbCall function
+    let options = { method: 'GET',
+        url: `${baseURL}authentication/guest_session/new`,
+        qs: {},
+        body: '{}'
+    };
+
+    // Call tmdb API and return object to callback function with the 
+    // 'errorMessage' as the indicator of whether a search was succesfful
+    tmdb.tmbdCall(options, (errorMessage, body) => {
+        if (errorMessage) {
+            callback(errorMessage);
+        } else {
+            callback(undefined, body);
+        }
+    })
 };
 
 // Function that returns the correct string to concatenate with the base 
@@ -65,17 +96,11 @@ let getRatingURL = (id = isRequired(), isTV = isRequired()) => {
     };
 };
 
-// Function that returns the correct string to concatenate with the base URL 
-// in order to send a POST request to add a new guest session
-let getAddGuestSessionURL = () => {
-    return `${baseURL}authentication/guest_session/new`;
-};
-
 // Export functions for use outside of module
 module.exports = {
     tmbdCall,
+    createGuestSession,
     getSearchURL,
     getDetailedSearchURL,
-    getRatingURL,
-    getAddGuestSessionURL
+    getRatingURL
 };
