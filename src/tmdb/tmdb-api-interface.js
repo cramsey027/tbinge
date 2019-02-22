@@ -29,7 +29,7 @@ let tmbdCall = (options, callback) => {
         } else if (response.statusCode === 401 || response.statusCode === 404) {
             callback(body.status_message);
         // Return object of 'body' if no error in transaction
-        } else {
+        } else {  
             callback(undefined, JSON.parse(body));
         };
     });
@@ -65,10 +65,17 @@ let getRatingURL = (id = isRequired(), isTV = isRequired()) => {
     };
 };
 
+// Function that returns the correct string to concatenate with the base URL 
+// in order to send a POST request to add a new guest session
+let getAddGuestSessionURL = () => {
+    return `${baseURL}authentication/guest_session/new`;
+};
+
 // Export functions for use outside of module
 module.exports = {
     tmbdCall,
     getSearchURL,
     getDetailedSearchURL,
-    getRatingURL
+    getRatingURL,
+    getAddGuestSessionURL
 };
