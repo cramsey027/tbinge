@@ -1,6 +1,6 @@
 /* 
-*  This module provides the ability to search TMDb 
-*  for movie and TV shows based on input strings 
+*  This module provides the ability to search TMDb for 
+*  movie and TV shows based on their name or id
 *  Author: Kyle McCain
 *  Date: 19 February 2019
 */
@@ -36,11 +36,7 @@ let detailedSearch = (id, isTV, callback) => {
     // Define options prior to passing it to the tmdbCall function
     let options = { method: 'GET',
         url: tmdb.getDetailedSearchURL(isTV) + id,
-        qs: 
-        {   include_adult: 'false',
-            page: '1',
-            language: 'en-US',
-        },
+        qs: { language: 'en-US' },
         body: '{}' 
     };
     
