@@ -1,5 +1,6 @@
 /* 
-*  This module tests the "/src/tmdb/search.js" module for proper functionality 
+*  This module tests the "/src/tmdb/search.js" module for proper functionality
+*  using the Mocha testing framework and the 'expect' functionality from Chai 
 *  Author: Kyle McCain
 *  Date: 20 February 2019
 */
